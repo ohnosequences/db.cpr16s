@@ -33,51 +33,14 @@ We are using the ribosomal RNA type annotation on RNACentral as a first catch-al
   val ribosomalRNAType = "rRNA"
 ```
 
-The sequence length threshold for a sequence to be admitted as 16S.
+Taxon ID for *Saccharibacteria*
 
 ```scala
-  val minimum16SLength: Int = 1300
-```
-
-Taxon IDs for *Archaea*, *Bacteria* and the dreaded *Unclassified Bacteria* taxon
-
-```scala
-  val bacteriaTaxonID        = "2"
-  val archaeaTaxonID         = "2157"
-  val unclassifiedBacteriaID = "2323"
-```
-
-These are NCBI taxonomy IDs corresponding to taxa which are at best uniformative. The `String` value is the name of the corresponding taxon, for documentation purposes.
-
-```scala
-  val uninformativeTaxIDsMap = Map(
-    32644   -> "unclassified",
-    2323    -> "unclassified Bacteria",
-    4992    -> "unclassified Bacteria (miscellaneous)", // LOL
-    118884  -> "unclassified Gammaproteobacteria",
-    358574  -> "uncultured microorganism",
-    155900  -> "uncultured organism",
-    415540  -> "uncultured marine microorganism",
-    198431  -> "uncultured prokaryote",
-    77133   -> "uncultured bacterium",
-    115547  -> "uncultured archaeon",
-    56763   -> "uncultured marine archaeon",
-    152507  -> "uncultured actinobacterium",
-    1211    -> "uncultured cyanobacterium",
-    153809  -> "uncultured proteobacterium",
-    91750   -> "uncultured alpha proteobacterium",
-    86027   -> "uncultured beta proteobacterium",
-    86473   -> "uncultured gamma proteobacterium",
-    34034   -> "uncultured delta proteobacterium",
-    56765   -> "uncultured marine bacterium",
-    115414  -> "uncultured marine alpha proteobacterium"
-  )
-
-  lazy val uninformativeTaxIDs: Set[String] = uninformativeTaxIDsMap.keySet.map(_.toString)
+  val SaccharibacteriaTaxonID = "95818"
 ```
 
 
-## Predicate defining a 16S candidate
+## Predicate defining a candidate
 
 Sequences that satisfy this predicate (on themselves together with their annotation) are included in the output of this step.
 
@@ -99,35 +62,16 @@ Sequences that satisfy this predicate (on themselves together with their annotat
 
 ```scala
     ( row.select(db).trim.toLowerCase != "silva" )  &&
-```
-
-- their taxonomy association is *not* one of those in `uninformativeTaxIDs`
-
-```scala
-    ( ! uninformativeTaxIDs.contains(taxID) )       &&
     {
       taxonomyGraph.getTaxon(taxID).map(_.ancestors) match {
         case None => false // not in the DB
         case Some(ancestors) =>
 ```
 
-- is a descendant of either Archaea or Bacteria
+- is a descendant of Saccharibacteria
 
 ```scala
-          ancestors.exists { ancestor =>
-            ancestor.id == archaeaTaxonID ||
-            ancestor.id == bacteriaTaxonID
-          } &&
-```
-
-- and is not a descendant of an environmental or unclassified taxon
-
-```scala
-          ancestors.filter { ancestor =>
-            ancestor.name == "environmental samples" ||
-            ancestor.name.contains("unclassified")   ||
-            ancestor.id == unclassifiedBacteriaID
-          }.isEmpty
+          ancestors.exists { _.id  == SaccharibacteriaTaxonID }
       }
     }
   }
@@ -139,7 +83,6 @@ This predicate determines whether the *sequence* value is OK, and will be kept.
   def sequencePredicate(fastaSeq: FastaSequence): Boolean = {
     val seq = fastaSeq.value
 
-    ( seq.length >= minimum16SLength )              &&
     ( !(seq containsSlice "NNNNNNNN") )             &&
     ( (seq.count(_ == 'N') / seq.length) <= 0.01 )
   }
@@ -186,14 +129,14 @@ if the sequence is OK, we partition the rows based on the predicate
 
 
 
-[main/scala/data.scala]: ../../main/scala/data.scala.md
-[main/scala/package.scala]: ../../main/scala/package.scala.md
-[test/scala/clusterSequences.scala]: clusterSequences.scala.md
-[test/scala/compats.scala]: compats.scala.md
-[test/scala/dropInconsistentAssignments.scala]: dropInconsistentAssignments.scala.md
 [test/scala/dropRedundantAssignments.scala]: dropRedundantAssignments.scala.md
+[test/scala/runBundles.scala]: runBundles.scala.md
 [test/scala/mg7pipeline.scala]: mg7pipeline.scala.md
 [test/scala/package.scala]: package.scala.md
+[test/scala/compats.scala]: compats.scala.md
+[test/scala/clusterSequences.scala]: clusterSequences.scala.md
+[test/scala/dropInconsistentAssignments.scala]: dropInconsistentAssignments.scala.md
 [test/scala/pick16SCandidates.scala]: pick16SCandidates.scala.md
 [test/scala/releaseData.scala]: releaseData.scala.md
-[test/scala/runBundles.scala]: runBundles.scala.md
+[main/scala/package.scala]: ../../main/scala/package.scala.md
+[main/scala/data.scala]: ../../main/scala/data.scala.md
