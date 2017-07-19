@@ -1,6 +1,6 @@
 
 ```scala
-package ohnosequences.db.rna16s.test
+package ohnosequences.db.cpr16s.test
 
 import ohnosequences.mg7._, loquats._
 import ohnosequences.datasets._, illumina._
@@ -32,8 +32,8 @@ case object mg7 {
 As the reference database we use the one generated from dropRedundantAssignments
 
 ```scala
-  case object rna16sRefDB extends ReferenceDB(
-    ohnosequences.db.rna16s.dbName,
+  case object cpr16sRefDB extends ReferenceDB(
+    ohnosequences.db.cpr16s.dbName,
     dropRedundantAssignmentsAndGenerate.s3,
     dropRedundantAssignments.output.table.s3
   )
@@ -51,7 +51,7 @@ As the reference database we use the one generated from dropRedundantAssignments
       perc_identity(99.0)         ::
       *[AnyDenotation]
     ).value,
-    referenceDBs = Set(rna16sRefDB)
+    referenceDBs = Set(cpr16sRefDB)
   ) {
 ```
 
@@ -69,9 +69,9 @@ IMPORTANT: exclude the query from the results
   }
 
   case object pipeline extends MG7Pipeline(parameters) {
-    override lazy val name = "db-rna16s"
+    override lazy val name = "db-cpr16s"
 
-    val metadata: AnyArtifactMetadata = ohnosequences.db.generated.metadata.rna16s
+    val metadata: AnyArtifactMetadata = ohnosequences.db.generated.metadata.cpr16s
     // TODO: we should probably have a restricted role for this:
     val iamRoleName: String = "era7-projects"
     val logsS3Prefix: S3Folder = s3"era7-projects-loquats" /
@@ -81,11 +81,11 @@ As input we use the FASTA accepted by dropRedundantAssignments
 
 ```scala
     lazy val inputSamples: Map[ID, S3Resource] = Map(
-      "refdb" -> S3Resource(ohnosequences.db.rna16s.test.dropRedundantAssignments.output.fasta.s3)
+      "refdb" -> S3Resource(ohnosequences.db.cpr16s.test.dropRedundantAssignments.output.fasta.s3)
     )
 
     lazy val outputS3Folder: (SampleID, StepName) => S3Folder = { (_, stepName) =>
-      ohnosequences.db.rna16s.s3prefix / "mg7" / stepName /
+      ohnosequences.db.cpr16s.s3prefix / "mg7" / stepName /
     }
 
     val splitConfig  = SplitConfig(1)

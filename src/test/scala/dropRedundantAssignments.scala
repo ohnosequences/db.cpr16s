@@ -7,7 +7,7 @@
 
   The output of this step represents around `70%` of the pick 16S candidates output; there is also a significant number of sequences with *less* assignments.
 */
-package ohnosequences.db.rna16s.test
+package ohnosequences.db.cpr16s.test
 
 import ohnosequences.db._, csvUtils._, collectionUtils._
 import ohnosequences.fastarious.fasta._
@@ -129,6 +129,6 @@ case object dropRedundantAssignments extends FilterDataFrom(pick16SCandidates)()
 }
 
 case object dropRedundantAssignmentsAndGenerate extends FilterAndGenerateBlastDB(
-  ohnosequences.db.rna16s.dbName,
-  ohnosequences.db.rna16s.test.dropRedundantAssignments
+  ohnosequences.db.cpr16s.dbName,
+  ohnosequences.db.cpr16s.test.dropRedundantAssignments
 )

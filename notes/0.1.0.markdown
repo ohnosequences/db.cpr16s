@@ -1,5 +1,5 @@
-First release. It provides the rna16s Blast DB. It is located at
+First release. It provides the cpr16s Blast DB. It is located at
 
 ```
-s3://resources.ohnosequences.com/db/rna16s/
+s3://resources.ohnosequences.com/db/cpr16s/
 ```

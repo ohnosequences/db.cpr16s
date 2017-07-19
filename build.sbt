@@ -1,4 +1,4 @@
-name          := "db.rna16s"
+name          := "db.cpr16s"
 organization  := "ohnosequences"
 description   := "A comprehensive, compact, and automatically curated 16S database"
 

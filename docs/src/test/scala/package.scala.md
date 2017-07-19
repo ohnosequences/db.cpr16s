@@ -1,6 +1,6 @@
 
 ```scala
-package ohnosequences.db.rna16s
+package ohnosequences.db.cpr16s
 
 import ohnosequences.fastarious.fasta._
 

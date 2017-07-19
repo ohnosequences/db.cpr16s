@@ -24,5 +24,5 @@ data/out/
 *.tsv
 
 refdb.blast.csv
-ohnosequences.db.rna16s.csv
+ohnosequences.db.cpr16s.csv
 blastdb/

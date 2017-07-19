@@ -1,6 +1,6 @@
 
 ```scala
-package ohnosequences.db.rna16s.test
+package ohnosequences.db.cpr16s.test
 
 import com.amazonaws.services.s3._, transfer._
 import com.amazonaws.auth._
@@ -28,13 +28,13 @@ This code generates a list of pairs for all objects in the source folder to the 
       .getOrElse(sys.error(s"Couldn't list objects in ${blastdbSource}"))
       .flatMap { obj =>
         obj.key.split('/').lastOption.map { name =>
-          obj -> (db.rna16s.data.blastDBS3 / name)
+          obj -> (db.cpr16s.data.blastDBS3 / name)
         }
       }
 
     copyData(transferManager)(
-      (dropInconsistentAssignments.output.fasta.s3 -> db.rna16s.data.fastaS3) ::
-      (dropInconsistentAssignments.output.table.s3 -> db.rna16s.data.id2taxasS3) ::
+      (dropInconsistentAssignments.output.fasta.s3 -> db.cpr16s.data.fastaS3) ::
+      (dropInconsistentAssignments.output.table.s3 -> db.cpr16s.data.id2taxasS3) ::
       blastdbMap
     )
 

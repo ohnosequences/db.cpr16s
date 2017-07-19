@@ -9,7 +9,7 @@ Here we want to drop *inconsistent* assignments from our database; an assignment
 
 
 ```scala
-package ohnosequences.db.rna16s.test
+package ohnosequences.db.cpr16s.test
 
 import ohnosequences.db._, csvUtils._, collectionUtils._
 import ohnosequences.ncbitaxonomy._, titan._
@@ -187,8 +187,8 @@ Mapping of sequence IDs to corresponding FASTA sequences
 }
 
 case object dropInconsistentAssignmentsAndGenerate extends FilterAndGenerateBlastDB(
-  ohnosequences.db.rna16s.dbName,
-  ohnosequences.db.rna16s.test.dropInconsistentAssignments
+  ohnosequences.db.cpr16s.dbName,
+  ohnosequences.db.cpr16s.test.dropInconsistentAssignments
 )
 ```
 

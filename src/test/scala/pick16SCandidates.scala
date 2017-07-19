@@ -5,7 +5,7 @@
 
   The output of this step represents around `5%` of the sequences in RNACentral.
 */
-package ohnosequences.db.rna16s.test
+package ohnosequences.db.cpr16s.test
 
 import ohnosequences.db._, csvUtils._, collectionUtils._
 import ohnosequences.db.rnacentral._, RNAcentral._
@@ -18,7 +18,7 @@ import better.files._
 case object pick16SCandidates extends FilterData(
   RNAcentral.table,
   RNAcentral.fasta,
-  ohnosequences.db.rna16s.s3prefix
+  ohnosequences.db.cpr16s.s3prefix
 )(
   deps = ncbiTaxonomyBundle
 )
@@ -27,42 +27,10 @@ case object pick16SCandidates extends FilterData(
   /* We are using the ribosomal RNA type annotation on RNACentral as a first catch-all filter. We are aware of the existence of a gene annotation corresponding to 16S, that we are **not using** due to a significant amount of 16S sequences lacking the corresponding annotation. */
   val ribosomalRNAType = "rRNA"
 
-  /* The sequence length threshold for a sequence to be admitted as 16S. */
-  val minimum16SLength: Int = 1300
-
-  /* Taxon IDs for *Archaea*, *Bacteria* and the dreaded *Unclassified Bacteria* taxon */
-  val bacteriaTaxonID        = "2"
-  val archaeaTaxonID         = "2157"
-  val unclassifiedBacteriaID = "2323"
-
-  /* These are NCBI taxonomy IDs corresponding to taxa which are at best uniformative. The `String` value is the name of the corresponding taxon, for documentation purposes. */
-  val uninformativeTaxIDsMap = Map(
-    32644   -> "unclassified",
-    2323    -> "unclassified Bacteria",
-    4992    -> "unclassified Bacteria (miscellaneous)", // LOL
-    118884  -> "unclassified Gammaproteobacteria",
-    358574  -> "uncultured microorganism",
-    155900  -> "uncultured organism",
-    415540  -> "uncultured marine microorganism",
-    198431  -> "uncultured prokaryote",
-    77133   -> "uncultured bacterium",
-    115547  -> "uncultured archaeon",
-    56763   -> "uncultured marine archaeon",
-    152507  -> "uncultured actinobacterium",
-    1211    -> "uncultured cyanobacterium",
-    153809  -> "uncultured proteobacterium",
-    91750   -> "uncultured alpha proteobacterium",
-    86027   -> "uncultured beta proteobacterium",
-    86473   -> "uncultured gamma proteobacterium",
-    34034   -> "uncultured delta proteobacterium",
-    56765   -> "uncultured marine bacterium",
-    115414  -> "uncultured marine alpha proteobacterium"
-  )
-
-  lazy val uninformativeTaxIDs: Set[String] = uninformativeTaxIDsMap.keySet.map(_.toString)
-
+  /* Taxon ID for *Saccharibacteria* */
+  val SaccharibacteriaTaxonID = "95818"
   /*
-    ## Predicate defining a 16S candidate
+    ## Predicate defining a candidate
 
     Sequences that satisfy this predicate (on themselves together with their annotation) are included in the output of this step.
   */
@@ -75,24 +43,12 @@ case object pick16SCandidates extends FilterData(
     row.select(rna_type).contains(ribosomalRNAType) &&
     /* - are *not* from the SILVA database */
     ( row.select(db).trim.toLowerCase != "silva" )  &&
-    /* - their taxonomy association is *not* one of those in `uninformativeTaxIDs` */
-    ( ! uninformativeTaxIDs.contains(taxID) )       &&
     {
       taxonomyGraph.getTaxon(taxID).map(_.ancestors) match {
         case None => false // not in the DB
         case Some(ancestors) =>
-
-    /* - is a descendant of either Archaea or Bacteria */
-          ancestors.exists { ancestor =>
-            ancestor.id == archaeaTaxonID ||
-            ancestor.id == bacteriaTaxonID
-          } &&
-    /* - and is not a descendant of an environmental or unclassified taxon */
-          ancestors.filter { ancestor =>
-            ancestor.name == "environmental samples" ||
-            ancestor.name.contains("unclassified")   ||
-            ancestor.id == unclassifiedBacteriaID
-          }.isEmpty
+    /* - is a descendant of Saccharibacteria */
+          ancestors.exists { _.id  == SaccharibacteriaTaxonID }
       }
     }
   }
@@ -101,7 +57,6 @@ case object pick16SCandidates extends FilterData(
   def sequencePredicate(fastaSeq: FastaSequence): Boolean = {
     val seq = fastaSeq.value
 
-    ( seq.length >= minimum16SLength )              &&
     ( !(seq containsSlice "NNNNNNNN") )             &&
     ( (seq.count(_ == 'N') / seq.length) <= 0.01 )
   }
@@ -127,7 +82,7 @@ case object pick16SCandidates extends FilterData(
           (Seq[Row](), rows)
         }
 
-      val extendedID: String = s"gnl|${ohnosequences.db.rna16s.dbName}|${commonID}"
+      val extendedID: String = s"gnl|${ohnosequences.db.cpr16s.dbName}|${commonID}"
 
       writeOutput(
         extendedID,
