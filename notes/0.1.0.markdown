@@ -1,5 +1,1 @@
-First release. It provides the cpr16s Blast DB. It is located at
-
-```
-s3://resources.ohnosequences.com/db/cpr16s/
-```
+First release.
