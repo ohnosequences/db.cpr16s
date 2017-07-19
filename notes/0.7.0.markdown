@@ -1,2 +1,0 @@
-* Upgraded to db.rnacentral v0.4.0
-* Added processSources method based on lazy streams; launched an instance
